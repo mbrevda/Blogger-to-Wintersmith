@@ -47,14 +47,14 @@ def write_posts(posts, verbose)
   posts.each do |post|
     file_name = dir + post["file_name"]
     path = URI(post["url"]).path
-    header = %{---
+    header = %{```markdown
 title: #{post["title"].gsub(':','-')}
 date: #{post["creation_datetime"]}
 categories: #{post["categories"]}
 author: #{post["author"]}
 aliases: ['#{path}']
 template: article.jade
----
+```
 
 }
     File.open(file_name, "w+") {|f|
