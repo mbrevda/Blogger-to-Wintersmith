@@ -2,9 +2,12 @@
 
 ** Description
 
-Convert blogger (blogspot) articles to jekyll. To people's request I moved
-[[https://gist.github.com/1115810][the original gist]] to a project.
+Convert blogger (blogspot) articles to wintersmith. Forked from [Blogger-to-Jekyll](https://github.com/kennym/Blogger-to-Jekyll)
 
+** Setup
+ : gem install bundel
+ : bundel install
+ 
 ** Usage
 
  : ./blogger_to_jekyll.rb `feed_url`
@@ -21,3 +24,4 @@ where `feed_url` should have the following format:
 
    - Make sure Blogger shows full output of article in feeds.  Commenting on
    - migrated articles will be set to false by default.
+   - The migration isn't perfect, but it did what I need. It gets the gist of the blog post
