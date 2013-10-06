@@ -2,7 +2,7 @@
 
 ** Description
 
-Convert blogger (blogspot) articles to wintersmith. Forked from [Blogger-to-Jekyll](https://github.com/kennym/Blogger-to-Jekyll)
+Convert blogger (blogspot) articles to wintersmith. Forked from https://github.com/kennym/Blogger-to-Jekyll
 
 ** Setup
  : gem install bundel
