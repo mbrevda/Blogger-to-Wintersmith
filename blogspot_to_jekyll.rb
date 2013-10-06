@@ -3,10 +3,14 @@ include RbConfig
 require 'rubygems' if CONFIG['host_os'].start_with? "darwin"
 require 'date'
 require 'optparse'
+require 'fileutils'
+require 'uri'
+
 begin
   require 'feedzirra'
+  require 'reverse_markdown'
 rescue GEM::LoadError
-  puts "BOOM! Please install the `feedzirra` gem first."
+  puts "BOOM! Please install the `feedzirra` and `reverse_markdown` gems first."
   return
 end
 
@@ -14,14 +18,18 @@ def parse_post_entries(feed, verbose)
   posts = []
   feed.entries.each do |post|
     obj = Hash.new
-    created_datetime = post.updated
+    created_datetime = post.published
     creation_date = Date.parse(created_datetime.to_s)
     title = post.title
-    file_name = creation_date.to_s + "-" + title.split(/  */).join("-").delete('\/') + ".html"
-    content = post.content
-
+    path = creation_date.to_s + "-" + title.gsub(/[^0-9A-Za-z\s]/i, '').split(/  */).join("-").delete('\/').downcase
+    FileUtils.mkdir_p("articles/" + path)
+    file_name = path + "/index.md"
+    content = ReverseMarkdown.parse(post.summary)
+    
     obj["file_name"] = file_name
+    obj["url"] = post.url
     obj["title"] = title
+    obj["author"] = post.author
     obj["creation_datetime"] = created_datetime
     obj["updated_datetime"] = post.updated
     obj["content"] = content
@@ -32,18 +40,20 @@ def parse_post_entries(feed, verbose)
 end
 
 def write_posts(posts, verbose)
-  Dir.mkdir("_posts") unless File.directory?("_posts")
+  dir = "articles/"
+  Dir.mkdir(dir) unless File.directory?(dir)
 
   total = posts.length, i = 1
   posts.each do |post|
-    file_name = "_posts/".concat(post["file_name"])
+    file_name = dir + post["file_name"]
+    path = URI(post["url"]).path
     header = %{---
-layout: post
-title: #{post["title"]}
+title: #{post["title"].gsub(':','-')}
 date: #{post["creation_datetime"]}
-updated: #{post["updated_datetime"]}
-comments: false
 categories: #{post["categories"]}
+author: #{post["author"]}
+aliases: ['#{path}']
+template: article.jade
 ---
 
 }
@@ -87,7 +97,7 @@ def main
   puts "Parsing feed..."
   posts = parse_post_entries(feed, options[:verbose])
 
-  puts "Writing posts to _posts/..."
+  puts "Writing posts to articles/..."
   write_posts(posts, options[:verbose])
 
   puts "Done!"
